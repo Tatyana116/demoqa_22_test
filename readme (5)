@@ -1,0 +1,357 @@
+
+# Примеры кода для разных языков программирования
+
+## 1. Python
+```python
+def print_hello_world(times):
+    for _ in range(times):
+        print("Hello World")
+print_hello_world(5)
+```
+
+## 2. Java
+```java
+public class HelloWorld {
+    public static void main(String[] args) {
+        for (int i = 0; i < 5; i++) {
+            System.out.println("Hello World");
+        }
+    }
+}
+```
+
+## 3. Go 
+```go
+package main
+import "fmt"
+func main() {
+    for i := 0; i < 5; i++ {
+        fmt.Println("Hello World")
+    }
+}
+```
+
+## 4. JavaScript
+```javascript
+for (let i = 0; i < 5; i++) {
+    console.log("Hello World");
+}
+```
+
+## 5. C++
+```cpp
+#include <iostream>
+int main() {
+    for (int i = 0; i < 5; i++) {
+        std::cout << "Hello World" << std::endl;
+    }
+    return 0;
+}
+```
+
+## 6. TypeScript
+```typescript
+for (let i = 0; i < 5; i++) {
+    console.log('Hello World');
+}
+```
+
+## 7. PHP
+```php
+<?php
+for ($i = 0; $i < 5; $i++) {
+    echo "Hello World<br>";
+}
+?>
+```
+
+## 8. C
+```c
+#include <stdio.h>
+int main() {
+    for (int i = 0; i < 5; i++) {
+        printf("Hello World\n");
+    }
+    return 0;
+}
+```
+
+## 9. Ruby
+```ruby
+5.times do
+  puts "Hello World"
+end
+```
+
+## 10. C#
+```csharp
+using System;
+class HelloWorld {
+    static void Main() {
+        for (int i = 0; i < 5; i++) {
+            Console.WriteLine("Hello World");
+        }
+    }
+}
+```
+
+## 11. Nix
+```csharp
+{ pkgs ? import <nixpkgs> {} }:
+
+pkgs.stdenv.mkDerivation {
+  name = "hello-world";
+  src = pkgs.fetchurl {
+    url = "https://example.com/hello-world.tar.gz";
+    sha256 = "0l6fi5w4...";
+  };
+
+  buildInputs = [ pkgs.gcc pkgs.make ];
+
+  buildPhase = ''
+    gcc -o hello-world hello-world.c
+  '';
+
+  installPhase = ''
+    mkdir -p $out/bin
+    cp ./hello-world $out/bin
+  '';
+
+  meta = {
+    description = "A simple Hello World program";
+    homepage = "https://example.com";
+    license = pkgs.lib.licenses.mit;
+  };
+}
+
+```
+
+## 12. Shell
+```shell
+function Print-HelloWorld {
+    param([int]$Times)
+    1..$Times | ForEach-Object {
+        Write-Host "Hello World"
+    }
+}
+
+Print-HelloWorld -Times 5
+
+```
+
+## 13. Rust
+```rust
+fn main() {
+    for _ in 0..5 {
+        println!("Hello World");
+    }
+}
+```
+
+## 14. Scala
+```scala
+object HelloWorld extends App {
+  for (_ <- 1 to 5) {
+    println("Hello World")
+  }
+}
+```
+
+## 15. Kotlin
+```kotlin
+fun printHelloWorldTimes(times: Int) {
+    for (i in 1..times) {
+        println("Hello World")
+    }
+}
+
+fun main() {
+    printHelloWorldTimes(5)
+}
+```
+
+## 16. Swift
+```swift
+func printHelloWorld(times: Int) {
+    for _ in 1...times {
+        print("Hello World")
+    }
+}
+
+// Вызов функции
+printHelloWorld(times: 5)
+
+```
+
+## 17. Dart
+```dart
+void printHelloWorld(int times) {
+  for (int i = 0; i < times; i++) {
+    print('Hello World');
+  }
+}
+
+void main() {
+  printHelloWorld(5);
+}
+```
+
+## 18. DM
+```dm
+mob
+   Login()
+      world << "Hello, world!"
+```
+
+## 19. Groovy
+```	groovy
+def printHelloWorld(times) {
+    (1..times).each {
+        println 'Hello World'
+    }
+}
+
+printHelloWorld(5)
+```
+
+## 20. Lua
+```	lua
+function printHelloWorld(times)
+    for i = 1, times do
+        print("Hello World")
+    end
+end
+
+printHelloWorld(5)
+```
+
+## 21. Perl
+```	perl
+sub print_hello_world {
+    my ($times) = @_;
+    for (my $i = 0; $i < $times; $i++) {
+        print "Hello World\n";
+    }
+}
+
+print_hello_world(5);
+```
+
+## 22. Elixir
+```	elixir
+defmodule HelloWorld do
+  def print_hello_world(times) do
+    Enum.each(1..times, fn _ -> IO.puts("Hello World") end)
+  end
+end
+
+HelloWorld.print_hello_world(5)
+```
+
+
+## 23. Objective-C
+```	objectivec
+#import <Foundation/Foundation.h>
+
+void printHelloWorld(int times) {
+    for (int i = 0; i < times; i++) {
+        NSLog(@"Hello World");
+    }
+}
+
+int main() {
+    @autoreleasepool {
+        printHelloWorld(5);
+    }
+    return 0;
+}
+```
+
+## 24. SystemVerilog
+```	systemverilog
+module HelloWorld;
+
+  // Параметр, определяющий количество повторений
+  int times = 5;
+
+  initial begin
+    for (int i = 0; i < times; i++) begin
+      $display("Hello World");
+    end
+    $finish; // Завершает симуляцию
+  end
+
+endmodule
+```
+
+## 25. CodeQL
+```	codeql
+import cpp
+
+from FunctionCall call
+where call.getTarget().hasGlobalName("strcpy")
+select call, "This call to strcpy() could be dangerous; consider using strncpy() instead."
+```
+
+## 26. Haskell
+```	haskell
+printHelloWorld :: Int -> IO ()
+printHelloWorld 0 = return ()
+printHelloWorld n = do
+    putStrLn "Hello World"
+    printHelloWorld (n - 1)
+
+main :: IO ()
+main = printHelloWorld 5
+
+```
+
+## 27. OCaml
+```	ocaml
+let rec print_hello_world n =
+  if n > 0 then begin
+    print_endline "Hello World";
+    print_hello_world (n - 1)
+  end
+;;
+
+(* Вызов функции *)
+print_hello_world 5;;
+```
+
+## 28. Erlang
+```	erlang
+-module(hello).
+-export([print_hello_world/1]).
+
+print_hello_world(0) ->
+    ok;
+print_hello_world(N) when N > 0 ->
+    io:fwrite("Hello World\n"),
+    print_hello_world(N - 1).
+
+```
+
+## 29. PowerShell
+```	powershell
+function Print-HelloWorld {
+    param([int]$Times)
+    1..$Times | ForEach-Object {
+        Write-Host "Hello World"
+    }
+}
+
+
+Print-HelloWorld -Times 5
+
+```
+
+## 30. Clojure
+```	clojure
+(defn print-hello-world [times]
+  (dotimes [n times]
+    (println "Hello World")))
+
+
+(print-hello-world 5)
+```
