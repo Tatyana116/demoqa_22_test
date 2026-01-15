@@ -1,0 +1,594 @@
+---
+global:
+  imagePullSecrets:
+    - gog.registry.ci
+
+image:
+  repository: gog.gitverse.sbt/gitverse/gitverse-backend
+  pullPolicy: Always
+  tag: gs101
+  rootless: true
+
+gitea:
+  additionalConfigSources:
+    - secret:
+        secretName: gs101-backend-app-ini
+  config:
+    storage.packages:
+      STORAGE_TYPE: "minio"
+      MINIO_ENDPOINT: "obs.ru-moscow-1.hc.sbercloud.ru"
+      MINIO_BUCKET: "sh01-obs01"
+      MINIO_USE_SSL: true
+      MINIO_INSECURE_SKIP_VERIFY: false
+      MINIO_LOCATION: "ru-moscow-1"
+      MINIO_BUCKET_LOOKUP_TYPE: "dns"
+      MINIO_BASE_PATH: "/gs101/packages"
+    lfs:
+      STORAGE_TYPE: "lfs"
+      PATH: "/data/lfs"
+    storage.lfs:
+      STORAGE_TYPE: "minio"
+      MINIO_ENDPOINT: "obs.ru-moscow-1.hc.sbercloud.ru"
+      MINIO_BUCKET: "sh01-obs01"
+      MINIO_USE_SSL: true
+      MINIO_INSECURE_SKIP_VERIFY: false
+      MINIO_LOCATION: "ru-moscow-1"
+      MINIO_BUCKET_LOOKUP_TYPE: "dns"
+      MINIO_BASE_PATH: "/gs101/lfs"
+    attachment:
+      STORAGE_TYPE: "minio"
+      MINIO_ENDPOINT: "obs.ru-moscow-1.hc.sbercloud.ru"
+      MINIO_BUCKET: "sh01-obs01"
+      MINIO_USE_SSL: true
+      MINIO_INSECURE_SKIP_VERIFY: false
+      MINIO_LOCATION: "ru-moscow-1"
+      MINIO_BUCKET_LOOKUP_TYPE: "dns"
+      MINIO_BASE_PATH: "/gs101/attachments"
+    database:
+      DB_TYPE: "postgres"
+    goose:
+      ALLOW_MISSING: true # !!! Только для DEV !!!
+      GOOSE_MIGRATION_DIR: /app/migrations
+      GOOSE_TABLE: gv_goose_db_version
+    actions:
+      ENABLED: true
+      DEFAULT_ACTIONS_URL: "self"
+    packages:
+      ENABLED: true
+      TYPES: "PyPI,Container,npm,maven,generic,go,nuget,helm,rpm,debian"
+      LIMIT_TOTAL_OWNER_SIZE: "524288000"
+    ui:
+      ENABLE_API: true
+      ENABLE_CLASSIC: true
+      ENABLE_MODERN: true
+    mirror:
+      MIN_INTERVAL: "10m" # for dev and stage; default 8h
+    server:
+      DOMAIN: "gs101.gvtools.ru"
+      ROOT_URL: "https://gs101.gvtools.ru/sc/"
+      SSH_DOMAIN: "gs101.dev.gitverse.sbt"
+      SSH_SERVER_HOST_KEYS: "ssh/gitea.rsa"
+      SSH_LISTEN_PORT: "22705"
+      SSH_PORT: "22705"
+      ENABLE_PPROF: false
+      LFS_START_SERVER: true
+      LFS_MAX_FILE_SIZE: "1073741824"
+      LFS_ALLOW_PURE_SSH: true
+    service:
+      DEFAULT_KEEP_EMAIL_PRIVATE: true
+    security:
+      PASSWORD_COMPLEXITY: "lower,upper,digit,spec"
+      MIN_PASSWORD_LENGTH: "8"
+    queue:
+      TYPE: "redis"
+      LENGTH: "100"
+      QUEUE_NAME: "_queue"
+      SET_NAME: "_unique"
+      MAX_WORKERS: "10"
+    cache:
+      ENABLED: true
+      ADAPTER: "redis"
+      INTERVAL: "60"
+      ITEM_TTL: "16h"
+    session:
+      PROVIDER: "redis"
+      SESSION_LIFE_TIME: "900"
+      COOKIE_NAME: "dev_session"
+    gitverse:
+      PACKAGE_REGISTRY_ENABLED: false
+      INTERNAL_TOKEN: "A5FGWi7OPDb6FMmopgbyRN"
+      ENABLED: true
+      FRONT_LOGIN_URL: "https://gs101.gvtools.ru/signin"
+      FRONT_REGISTRATION_URL: "https://gs101.gvtools.ru/signup"
+      REDIRECT_URL: "/sc/sbt/api/v1/redirect"
+      EARLY_ADOPTERS_ENABLED: false # активация доступа для early adopters (for all)
+      SIMPLE_AUTH_ENABLED: true # включение авторизации по логину/паролю (for dev)
+      AI_TOKENS_COUNT_LIMIT: "750000"
+      APP_URL: "https://gs101.gvtools.ru/"
+      LICENSE_MANAGER_URL: "gs101-billing-backend-grpc:50052"
+      LICENSE_MANAGER_REQUIRED_VERSION: "4.0"
+      PAYMETER_BILLING_ENABLED: true
+      INTERNAL_APP_URL: "http://gs101-backend-gitea-http:3000"
+    public_api:
+      ENABLED: true
+      PUBLIC_API_ROUTE: "public/api/"
+      PUBLIC_APP_URL: "https://gs101-api.dev.gitverse.sbt"
+    public_api.rate_limit:
+      ENABLED: true
+      PUBLIC_API_TOTAL: 100000
+      PUBLIC_API_PER_USER: 5000
+    git.timeout:
+      MIGRATE: "3600"
+    cron.cleanup_attachments:
+      ENABLED: true
+      RUN_AT_START: false
+      NOTICE_ON_SUCCESS: true
+      SCHEDULE: "@every 10m"
+      OLDER_THAN: "2m"
+    log:
+      LEVEL: "info"
+      MODE: "console"
+      STACKTRACE_LEVEL: "none"
+      BUFFER_LEN: "10000"
+      EVENT_FORMAT: "json"
+      ENABLE_SSH_LOG: false
+      FLAGS: "date,time,microseconds,shortfile,funcname,level,gopid"
+      ROUTER: "console"
+      XORM: "console"
+      ENABLE_XORM_LOG: false
+      ACCESS_LOG_TEMPLATE: >-
+        "TraceId":"{{.Ctx.TraceId}}",
+        "Method":"{{.Ctx.Req.Method}}",
+        "Path": "{{.Ctx.Req.URL.RequestURI}}",
+        "Body": "{{.Body}}",
+        "Status": {{.ResponseWriter.Status}},
+        "Size": {{.ResponseWriter.Size}},
+        "Host": "{{.Ctx.RemoteHost}}",
+        "User": "{{.Identity}}",
+        "Start": "{{.Start.Format "2006/01/02 15:04:05.000000 -0700" }}",
+        "End": "{{.End.Format "2006/01/02 15:04:05.000000 -0700" }}",
+        "Duration": "{{.Duration}}"
+    sbt.audit:
+      AUDIT_PATH: "/tmp"
+    picture:
+      DISABLE_GRAVATAR: true
+    repository:
+      DISABLED_REPO_UNITS: "repo.issues,repo.wiki,repo.projects,repo.ext_wiki,repo.ext_issues"
+      DEFAULT_REPO_UNITS: "repo.code,repo.releases,repo.pulls"
+      DEFAULT_BRANCH: "master"
+      ROOT: "/data/git/gitea-repositories"
+    repository.release:
+      ALLOWED_TYPES: >-
+        .whl,.7z,.apk,.AppImage,.cab,.csv,.doc,.docx,.fodg,.fodp,.fods,.fodt,.gif,.gz,.jar,.jpeg,.jpg,.js,.log,.md,
+        .odf,.odg,.odp,.ods,.odt,.patch,.pdf,.png,.pptx,.rar,.svg,.tgz,.txt,.webm,.xls,.xlsx,.zip,.xz
+    repository.upload:
+      TEMP_PATH: "/data/tmp/uploads"
+      FILE_MAX_SIZE: "5"
+    tracker:
+      ENABLED: false
+    iam:
+      ENABLED: true
+      KEYCLOAK_CERT_URL: "http://gs101-iam-keycloak:8080/auth/realms/GitVerse/protocol/openid-connect/certs"
+      VALIDATE: false
+    metrics:
+      ENABLED: true
+    mailer:
+      ENABLED: false
+      PROTOCOL: "smtp"
+      SMTP_ADDR: "mailhog-http"
+      SMTP_PORT: "1025"
+      FROM: "noreply-gs101@dev.gitverse.sbt"
+      PASSWD: ""
+    cde_manager:
+      ENABLED: false
+      ROOT_URL: https://dev.saas.works.sbertech.ru/
+      RETRY_ATTEMPTS: 3
+
+  livenessProbe:
+    enabled: true
+  readinessProbe:
+    enabled: true
+  startupProbe:
+    enabled: false
+
+ingresses:
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /public/api/$1
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-api.dev.gitverse.sbt
+        paths:
+          - path: /(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /public/api/$2
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-api.dev.gitverse.sbt
+        paths:
+          - path: /sc/public/api(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-api.dev.gitverse.sbt
+        paths:
+          - path: /public/api(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true # only for dev
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /v2(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /api/packages/([A-Za-z0-9-._]+)/
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    tls:
+      - secretName: gvtools-ru-tls
+        hosts:
+          - gs101.gvtools.ru
+    hosts:
+      - host: gs101.gvtools.ru
+        paths:
+          - path: /api/actions/([A-Za-z0-9-._]+)/
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /sbt/api/v1/$2
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/sbt/api/v1(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1/$2/info/lfs/$4
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/info/lfs(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1/$2/git-upload-pack
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/git-upload-pack
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/git-upload-pack
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1/$2/git-receive-pack
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/git-receive-pack
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/git-receive-pack
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1/$2/info/refs
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/info/refs
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/info/refs
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1/$2/HEAD
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/HEAD
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/HEAD
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1/$2/objects/$4
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/objects(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /([A-Za-z0-9-._]+)/([A-Za-z0-9-._]+)/objects(/|$)(.*)
+            pathType: ImplementationSpecific
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /avatars/$2
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/avatars(/|$)(.*)
+            pathType: Prefix
+  - enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /repo-avatars/$2
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    className: nginx
+    hosts:
+      - host: gs101-internal.dev.gitverse.sbt
+        paths:
+          - path: /sc/repo-avatars(/|$)(.*)
+            pathType: ImplementationSpecific
+
+service:
+  ssh:
+    type: NodePort
+    port: 22705
+    nodePort: 30705
+  grpc:
+    port: 50051
+
+persistence:
+  enabled: true
+  create: false
+  mount: true
+  accessModes:
+    - ReadWriteMany
+  claimName: gs101-backend-shared-storage-01
+
+postgresql:
+  enabled: false
+postgresql-ha:
+  enabled: false
+redis-cluster:
+  enabled: false
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+initContainers:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+customCerts:
+  enabled: true
+  dirPath: "/data/certs"
+
+ca:
+  redis.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIExDCCAyygAwIBAgIEBQsGrjANBgkqhkiG9w0BAQ0FADBxMQswCQYDVQQGEwJS
+    VTEPMA0GA1UECAwGTW9zY293MQ8wDQYDVQQHDAZNb3Njb3cxHzAdBgNVBAoMFkNM
+    T1VEIFRFQ0hOT0xPR0lFUyBMTEMxDjAMBgNVBAsMBUNTRENTMQ8wDQYDVQQDDAZk
+    Y3MtY2EwHhcNMjUwNDIwMDcyMjE3WhcNMzUwNDE4MDcyMjE3WjBxMQswCQYDVQQG
+    EwJSVTEPMA0GA1UECAwGTW9zY293MQ8wDQYDVQQHDAZNb3Njb3cxHzAdBgNVBAoM
+    FkNMT1VEIFRFQ0hOT0xPR0lFUyBMTEMxDjAMBgNVBAsMBUNTRENTMQ8wDQYDVQQD
+    DAZkY3MtY2EwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQDmPVaynpgQ
+    KkasUeZsAUJMDnuXhz5u6JnQntUg+hJZyEjD+4iWZQZtv+iF1Ga1aL3xAfloezca
+    iqeBXxtUtj7cgiAw54mQk41xJS4H/DPABgOske5zGFJ7Q5870x9jrgQK+9gkTzX3
+    iKWPnQMUCbgTAIt9RUFHhZrVGJ3xQUfzru0+3uJCGc26Ki5PAPNESqkrtRhIPlyh
+    7NjAfsOTkVIGABaw2y+oZIIoVG5QeTFNk6qkNdDzphEU2qErHVxgjkzoa1Aqj99E
+    CmK9SZG/QIqYaje1L0RnTDCPxX6ceppXk9iPomaCKUsDJV6YqJT8v6LDZIFKAhc0
+    Uxz5C7HP1gcqxkHOCDNfWYztsGUNqGLHrtI9o5Aj8G/BThjeF4p18pOD4azBEiAZ
+    l8Xai3v4n6JjcMCfYdAOC7EmkZMPw4BU+hiEUVWVEurCf9PP8Ai/zFdcGpwmGE47
+    TSlZaeGxqY/bpPafddTF0NbFc8/qzb3P4gDX5JEqg6LN6MVP+fQ/7nUCAwEAAaNk
+    MGIwHQYDVR0OBBYEFDenDy8HeBrjom6xa26uMCDQxLrJMA8GA1UdEwEB/wQFMAMB
+    Af8wCwYDVR0PBAQDAgG2MCMGA1UdJQQcMBoGCCsGAQUFBwMBBggrBgEFBQcDAgYE
+    VR0lADANBgkqhkiG9w0BAQ0FAAOCAYEAnSd+rKO5vRhTyXBnPXzUcLv5OHb5SgNQ
+    SJZMjblGlbzwgu7WasW3A35/LgY+ae/wjG+jWGSQ03UR33U+u7X5Vi9mEZI6K7A4
+    JfN9MSkxm/tkorBqRGZhe27qTBno1NSYS6CWcnDFaphAMxYj0/R9jVfxAbfHVIcw
+    TTOSmW3FGOgLo6VdTwietS0OdeKLCQpcGVWx3PeuxFdOrIN5ZRr9/m5pR/IdMn3I
+    +tgx5qYu56oNk8K6Vd3D8fbvH9O6U7S2+5XQp/MCqh4fy3F5GECY8NAqNbKLQs6Y
+    eaZ+EAOOfboTP6+dGWXWdounfrYlVf/Q9PlPAlGwLQWTiU53QPgKU1DOnLjha4qI
+    /d/7vcoIbzF9gdsZf9VVB6s0pm+oy0U1U823c0VXdSObS+PlwW5Qnz6hdpd0ksA+
+    /PH/hB+yAWoBOxyeM9bCeYmv14dljf6bpGnvqdXrmvgGtAAojl/OzErKGJmUN9jv
+    L/0r1MisxZwdxyrhkegY6s5kqKyK3kcI
+    -----END CERTIFICATE-----
+  stage.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIElDCCAvygAwIBAgIBATANBgkqhkiG9w0BAQsFADA5MRcwFQYDVQQKDA5HSVRW
+    RVJTRS5MT0NBTDEeMBwGA1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MB4XDTI0
+    MDIxMjAwNDU1NloXDTQ0MDIxMjAwNDU1NlowOTEXMBUGA1UECgwOR0lUVkVSU0Uu
+    TE9DQUwxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTCCAaIwDQYJKoZI
+    hvcNAQEBBQADggGPADCCAYoCggGBAOtMQF2o7JBQlxu3jv/8zMi7Svxo+RmAiXEs
+    MKjirx5I9WBo6nuMeyGqklYuXXp2WZEuOGSu5fNRXw9gv0/lii2L5LIbKt1Xjd18
+    RVg0dO45n7djLlZqv4+WCVznFOBxQXHcrniSIx2fMMBQX7LJgMJBdEa2gWZCj0DG
+    qt55zamrwIAUSHNlufuAR2S5l9cR5fIJNn/gf4uE67RIgYLWU6AKBT9YP9pOn5c8
+    emLl7LI5dfvBk8kAgLmUTS6K/HttcIHY9vKtwfxLTiRBHhxSX7sz/W2gEekBmlIb
+    I3WFINoUKYBfM6Apc+n2RuAbm+xgyJKKeg99y3fDPRxvAhI6hdiVOjQSVMc4YE0M
+    IhGrwxCeiVdYel6oH0kHlOCtv1QhgpamFgKId06eteqBp+YMP80gwqXM00819eNF
+    nj85DH2ygNfHqTm97GYS7+m8GQnfKpzN3D2DvQjoNf1EpvXLC6L1Vl+rxdyR9nwI
+    zctIPm1HvC5tPmwEm8Onw15zCwIJKwIDAQABo4GmMIGjMB8GA1UdIwQYMBaAFBv5
+    yi+zgqBnTJ7cHOLPc/5za67OMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQD
+    AgHGMB0GA1UdDgQWBBQb+covs4KgZ0ye3Bziz3P+c2uuzjBABggrBgEFBQcBAQQ0
+    MDIwMAYIKwYBBQUHMAGGJGh0dHA6Ly9pcGEtY2EuZ2l0dmVyc2UubG9jYWwvY2Ev
+    b2NzcDANBgkqhkiG9w0BAQsFAAOCAYEAxNvQ6FV7+bAbqjv4WPQ7BHfIof15cSKt
+    HyMMeTyP+sgKI3v1nJdTB61PHqvwwoug/UjYL/pKOWh2SWFQP3TvMcKeUtFEH0oO
+    sYsWbH9nF1z87ozyCMF2IqzYZdKCtfFV4B9o7aKUoYFmtbNaUuOM28LIcA8icKg/
+    16hjCxFWkShpDxwKRRJ4MUw2o/xN+nEmvq+KjukiELkKtICl6Sp8NNT1V4H+TEew
+    2Xon0i3ShPhmM4rfikPmJXCt5nDPaIJrB6waAVL6OUrgaiyl0RiQCwfMoJtlXbPm
+    6ao6tnIyxSHPZxEoqR4cMjyPvvVxc9Uv6jGlAqUc1JJdQxlIvIH0bxd7AjKYvG8n
+    tpePUC/xw5Ryz3Tk+T08i/hwkfOdeO0xukGTgaxslshpe5QLXbY0gWH740/A0d+4
+    lkQ7rRaF5rQrvVp7QrIcsGp/BdY27KICInYHKs9EF9gEnZGE3t32FUfIU7juocnr
+    -----END CERTIFICATE-----
+  sbertech.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIHXzCCBUegAwIBAgITMgAAABMq9OxfwvZ9zQABAAAAEzANBgkqhkiG9w0BAQwF
+    ADCBvjEVMBMGCgmSJomT8ixkARkWBWxvY2FsMRgwFgYKCZImiZPyLGQBGRYIc2Jl
+    cnRlY2gxETAPBgNVBAoTCFNiZXJUZWNoMRYwFAYDVQQLEw1JVCBEZXBhcnRtZW50
+    MQ8wDQYDVQQIEwZNb3Njb3cxDzANBgNVBAcTBk1vc2NvdzELMAkGA1UEBhMCUlUx
+    MTAvBgNVBAMTKFNiZXJUZWNoIEFEIFJvb3QgQ2VydGlmaWNhdGlvbiBBdXRob3Jp
+    dHkwHhcNMjIwNTExMTI1MjM0WhcNMjcwNTExMTMwMjM0WjCBxDELMAkGA1UEBhMC
+    UlUxFTATBgoJkiaJk/IsZAEZFgVsb2NhbDEYMBYGCgmSJomT8ixkARkWCHNiZXJ0
+    ZWNoMQ8wDQYDVQQIEwZNb3Njb3cxDzANBgNVBAcTBk1vc2NvdzERMA8GA1UEChMI
+    U2JlclRlY2gxFTATBgNVBAsTDElURGVwYXJ0bWVudDE4MDYGA1UEAxMvU2JlclRl
+    Y2ggQUQgU3Vib3JkaW5hdGUgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwggIiMA0G
+    CSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDVwBoqTsFWWVdxvCO23WJJmNIGkUjU
+    TPoJPJZNedfa6pA97OTgxmxv6FbUKkiU0l3AVUfppSHm+DN9GOWBTds+3P1Ou6x4
+    5+6ikXScRWh2xqDO2c7DUTdJYOTE4xDYNVqYdYuvTrF4zaAUmhKUI6YTw/ki0nPm
+    PTiqj1H+qhkX9pQzD/ArNWD1nMhEerurm+5uZdriyGfc/LerEQPgqpqPLQAevT+2
+    FlKnk/m9jfN9IpO2kLp6/7AvoBFah0oY3dNleoYtQb3lk82ltO8LwVfKwlYr5xk9
+    Ma5hNt5YFryZSwz5TTzWJG2SdTLsX8T+0qzg7Az66X1gjOzkIf6CFEvLnNrZ4hcg
+    3kSkXxKNb7jcyQ30WV3LLd0KpZxEfcy3PJkavg2oyaTqVcrP0fWc8r3l9bqXXYyp
+    ff4ZDeaiCxXokMvXnfFZbog2uDD4VDrhPMPUBbSnOkp10eC4h8tnhBWwqLP9TGz2
+    CRv1qvNNZfRkxosoBxc0cQ33BU56UqVMfSKY7ZbSBKLm2IRWiUNIZhL5UcMnmOx5
+    LHdOdOqT+oIDmxlO2kqqdl7XibVJ/i/J+04Pxbz13mlBjkAGuCbAoVOIKP/xWvVE
+    pLB+Xz/6Z0m4OSztiziBvvm84xQ3GTA89pxKWdF093ZZ6aLS8iMjCm2BazX1zAbE
+    9SUS2tfq0AuHVQIDAQABo4IBTDCCAUgwEgYJKwYBBAGCNxUBBAUCAwkACjAjBgkr
+    BgEEAYI3FQIEFgQUzowqz5zY2ZBdMQ1L0qM/BvSVzMkwHQYDVR0OBBYEFPEDAEiL
+    VIu3pxQSr/b0VxKZ6MD/MBkGCSsGAQQBgjcUAgQMHgoAUwB1AGIAQwBBMAsGA1Ud
+    DwQEAwIBhjAPBgNVHRMBAf8EBTADAQH/MB8GA1UdIwQYMBaAFMWBw73H9GSOQjGN
+    bOXjGnHMZhJ6MEUGA1UdHwQ+MDwwOqA4oDaGNGh0dHA6Ly9wa2kuc2JlcnRlY2gu
+    bG9jYWwvY3JsL1JPT1RDQTAxLVNCVC1BRCgxKS5jcmwwTQYIKwYBBQUHAQEEQTA/
+    MD0GCCsGAQUFBzAChjFodHRwOi8vcGtpLnNiZXJ0ZWNoLmxvY2FsL2NybC9ST09U
+    Q0EwMS1TQlQtQUQuY3J0MA0GCSqGSIb3DQEBDAUAA4ICAQCcH1dlMYWQmJ3S3nO0
+    rU/snjE7QG6PhtnUecrTJhCfD5jriGXHjfa+tgTOBZx75htTn8e+6lWrO4c8sblW
+    vKDV11ve6D5dL4doPDAe6w07/kqBAyC4SPof5t+kcXP3u1LhxS4bLl8cPW60xzyG
+    4WiimzSFysUd6mSgz9f7JxELXmvGOwp7IjNTcaiPhibGE1rnFL45ov0RvzcZevjO
+    1IFooDm8I/i7mtHBb6V9bLz00VGR8Rx0v7Q9VmOMiwL6D8SdjQsn0B727INIHqiD
+    iNril5ta9lu3JqeWgOORWpiXfY80jyVaMSrRfPOFMaCPcm6CAW1N1zFWoQ67xF0g
+    oXAat+HMJwHr+69H+dVAcQfNzcuKGDu5jiTAvRW0Ks75PBTME21bMvRLrblQCdH3
+    /x8sAF+2yLQTI6b8x6b1oV+RYNvWgNyKsVFaMTNnaV568IX/LnQkvUM/fZubEy8X
+    tDxRUk+XPMg0iI9mA9d+uIrxscEYihw6R3VOuAE1t4pgej2BYwVuztlq3nA/IZRf
+    Q0W+vS/zA9N80ShJTwOWGb8Uvw0YQXST2+FQ7bkMi2vtlrP+LCfeCxPGjEt4Qckg
+    aJol00qiYkEzPnZDWmDx/0KEloNHS/X5K71cBG2ohUp8wJSnmuug2n4dYBlwV81S
+    0bUB1G8iw1w6N/wmU37aoEkQ2Q==
+    -----END CERTIFICATE-----
+
+cors:
+  enabled: true
+  allowDomain:
+    - "http://localho.st:8000"
+    - "http://localho.st:8080"
+    - "https://localho.st:8000"
+    - "https://localho.st:8080"
