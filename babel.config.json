@@ -1,0 +1,31 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "bugfixes": true
+      }
+    ],
+    ["@babel/preset-typescript"]
+  ],
+  **Expected Fields:**
+- `sha` - string (40 char hex)
+- `node_id` - string
+- `url` - string (valid URL)
+- `html_url` - string (valid URL)
+- `commit` - object with author, committer, message, tree, verification
+- `author` - user object or null
+- `committer` - user object or null
+- `parents` - array
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": ["./src"],
+        "alias": {
+          "@": "./src"
+        }
+      }
+    ]
+  ]
+}
